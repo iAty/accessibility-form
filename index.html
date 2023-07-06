@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Űrlap minta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        label {
+            display: block;
+        }
+
+        .form-message {
+            background-color: #ffffd4;
+        }
+
+        .form-field {
+            margin: 1rem 0;
+        }
+
+        .field-error {
+            color: reds;
+        }
+    </style>
+</head>
+
+<body>
+
+    <p>A kötelező mezők csillaggal vannak jelölve <abbr title="Required field">*</abbr></p>
+    <form method="post" action="/" id="test-form" novalidate>
+        <div id="form-message" class="form-message" role="alert" aria-atomic="true"></div>
+        <div class="form-field">
+            <label for="name">Név <abbr title="required">*</abbr></label>
+            <input type="name" name="name" id="name" required />
+            <div class="form-field">
+                <label for="email">E-mail <abbr title="required">*</abbr></label>
+                <input type="email" name="email" id="email" required />
+            </div>
+            <button type="submit">Küld</button>
+    </form>
+
+    <script>
+
+        const testForm = document.getElementById("test-form");
+        const formMessageHolder = document.getElementById("form-message");
+        const nameField = document.getElementById("name");
+        const emailField = document.getElementById("email");
+
+        testForm.addEventListener("submit", event => {
+            event.preventDefault();
+            const nameValue = nameField.value;
+            const emailValue = emailField.value;
+            const nameDescNode = document.getElementById("nameDesc");
+            const emailDescNode = document.getElementById("emailDesc");
+
+            // Cleanup inline error messages
+            if (nameDescNode) {
+                nameDescNode.parentNode.removeChild(nameDescNode);
+            }
+            if (emailDescNode) {
+                emailDescNode.parentNode.removeChild(emailDescNode);
+            }
+
+            // Display error message if form is invalid
+            if (nameValue === "" || emailValue === "") {
+                formMessageHolder.innerHTML = `
+			<p>Kérjük, ellenőrizze az űrlapot, és javítsa ki a következő hibákat:</p>
+			<ul>
+				${nameValue ? "" : "<li>A név mezőt kötelező kitölteni.</li>"}
+				${emailValue ? "" : "<li>Az e-mail mezőt kötelező kitölteni.</li>"}
+			</ul>
+		`;
+
+                if (nameValue === "") {
+                    createErrorDescription("nameDesc", nameField, "A név mezőt kötelező kitölteni.");
+                }
+
+                if (emailValue === "") {
+                    createErrorDescription("emailDesc", emailField, "Az e-mail mezőt kötelező kitölteni.");
+                }
+
+                // Set focus on the first invalid field
+                nameValue === "" ? nameField.focus() : emailField.focus();
+            } else {
+                // Display success message if form was sent successfully
+                formMessageHolder.innerHTML = "<p>Az űrlapot sikeresen elküldtük!</p>";
+            }
+        });
+
+        // Helper method to create an field error message
+        const createErrorDescription = (name, field, message) => {
+            var newNode = document.createElement("div");
+            newNode.setAttribute("id", name);
+            newNode.classList.add("field-error");
+            field.setAttribute("aria-describedby", name);
+            newNode.innerHTML = message;
+            field.after(newNode);
+        };
+
+    </script>
+
+</body>
+
+</html>
